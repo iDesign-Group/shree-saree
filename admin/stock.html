@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Inward – Shree Sarees Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-logo">
+         <img src="http://localhost:5000/assets/shree-saree-logo-3d_1.jpg"
+             alt="Shree Saree Logo"
+             class="logo-image">
+         <span>Admin Panel</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+            <a href="products.html" class="nav-item">📦 Products</a>
+            <a href="stock.html" class="nav-item active">🏭 Stock Inward</a>
+            <a href="orders.html" class="nav-item">🛒 Orders</a>
+            <a href="shipments.html" class="nav-item">🚚 Shipments</a>
+            <a href="users.html" class="nav-item">👥 Users</a>
+        </nav>
+        <div class="sidebar-footer">
+            <span id="adminName"></span>
+            <button onclick="logout()" class="btn-logout">Logout</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h2>Stock Inward</h2>
+        </div>
+
+        <!-- Stock Inward Form -->
+        <div class="card">
+            <h3 class="card-title">Record New Stock Inward</h3>
+            <form id="stockInwardForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Select Product *</label>
+                        <select name="product_id" id="stockProduct"
+                            required onchange="loadBundleInfo()">
+                            <option value="">-- Select Product --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Bundle Size</label>
+                        <input type="text" id="stockBundleSize"
+                            readonly class="readonly-input"
+                            placeholder="Auto filled">
+                    </div>
+                    <div class="form-group">
+                        <label>Select Godown *</label>
+                        <select name="godown_id" id="stockGodown"
+                            required onchange="loadRacks()">
+                            <option value="">-- Select Godown --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Rack *</label>
+                        <select name="rack_id" id="stockRack"
+                            required onchange="loadShelves()">
+                            <option value="">-- Select Rack --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Shelf *</label>
+                        <select name="shelf_id" id="stockShelf" required>
+                            <option value="">-- Select Shelf --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Bundles Received *</label>
+                        <input type="number" name="bundles_received"
+                            id="stockBundles" placeholder="e.g. 10"
+                            required oninput="calcTotalSarees()">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Sarees</label>
+                        <input type="text" id="stockTotalSarees"
+                            readonly class="readonly-input"
+                            placeholder="Auto calculated">
+                    </div>
+                    <div class="form-group">
+                        <label>Inward Date *</label>
+                        <input type="date" name="inward_date"
+                            id="stockDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Invoice Number</label>
+                        <input type="text" name="invoice_number"
+                            placeholder="e.g. INV-2026-001">
+                    </div>
+                    <div class="form-group">
+                        <label>Supplier Name</label>
+                        <input type="text" name="supplier_name"
+                            placeholder="Supplier name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Remarks</label>
+                    <textarea name="remarks" rows="2"
+                        placeholder="Any remarks..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary">
+                    Record Stock Inward
+                </button>
+            </form>
+        </div>
+
+        <!-- Stock Ledger -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Current Stock Ledger</h3>
+                <select id="filterGodown" onchange="loadStockLedger()">
+                    <option value="">All Godowns</option>
+                </select>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Product Code</th>
+                            <th>Product Name</th>
+                            <th>Godown</th>
+                            <th>Rack</th>
+                            <th>Shelf</th>
+                            <th>Bundles Available</th>
+                            <th>Sarees Available</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stockLedgerTable">
+                        <tr><td colspan="7"
+                            class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/stock.js"></script>
+</body>
+</html>

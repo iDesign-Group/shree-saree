@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipments – Shree Sarees Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h2>🪡 Shree Sarees</h2>
+            <span>Admin Panel</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+            <a href="products.html" class="nav-item">📦 Products</a>
+            <a href="stock.html" class="nav-item">🏭 Stock Inward</a>
+            <a href="orders.html" class="nav-item">🛒 Orders</a>
+            <a href="shipments.html" class="nav-item active">🚚 Shipments</a>
+            <a href="users.html" class="nav-item">👥 Users</a>
+        </nav>
+        <div class="sidebar-footer">
+            <span id="adminName"></span>
+            <button onclick="logout()" class="btn-logout">Logout</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h2>Shipments Management</h2>
+            <button class="btn-primary"
+                onclick="openModal('createShipmentModal')">
+                + Create Shipment
+            </button>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card filter-bar">
+            <select id="filterShipmentStatus" onchange="loadShipments()">
+                <option value="">All Status</option>
+                <option value="preparing">Preparing</option>
+                <option value="dispatched">Dispatched</option>
+                <option value="in_transit">In Transit</option>
+                <option value="delivered">Delivered</option>
+                <option value="returned">Returned</option>
+            </select>
+            <input type="date" id="filterDispatchDate"
+                onchange="loadShipments()"
+                placeholder="Filter by dispatch date"
+                style="padding:8px 12px;border:1px solid #e0e0e0;
+                       border-radius:6px;font-size:14px;">
+        </div>
+
+        <!-- Shipments Table -->
+        <div class="card">
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Order No</th>
+                            <th>Shop Name</th>
+                            <th>Courier</th>
+                            <th>Tracking No</th>
+                            <th>Dispatch Date</th>
+                            <th>Expected Delivery</th>
+                            <th>Actual Delivery</th>
+                            <th>Status</th>
+                            <th>Email Sent</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="shipmentsTable">
+                        <tr><td colspan="10"
+                            class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Shipment Modal -->
+    <div class="modal" id="createShipmentModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3>Create New Shipment</h3>
+                <span class="modal-close"
+                    onclick="closeModal('createShipmentModal')">✕</span>
+            </div>
+            <form id="createShipmentForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Select Order *</label>
+                        <select name="order_id" id="shipmentOrder"
+                            required onchange="loadOrderInfo()">
+                            <option value="">-- Select Order --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Shop Name</label>
+                        <input type="text" id="shipmentShopName"
+                            readonly class="readonly-input"
+                            placeholder="Auto filled">
+                    </div>
+                    <div class="form-group">
+                        <label>Courier Name *</label>
+                        <select name="courier_name" required>
+                            <option value="">-- Select Courier --</option>
+                            <option value="DTDC">DTDC</option>
+                            <option value="Delhivery">Delhivery</option>
+                            <option value="Blue Dart">Blue Dart</option>
+                            <option value="Ekart">Ekart</option>
+                            <option value="Xpressbees">Xpressbees</option>
+                            <option value="Shadowfax">Shadowfax</option>
+                            <option value="Professional Courier">
+                                Professional Courier</option>
+                            <option value="India Post">India Post</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tracking Number *</label>
+                        <input type="text" name="tracking_number"
+                            placeholder="e.g. DTDC123456789" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Dispatch Date *</label>
+                        <input type="date" name="dispatch_date"
+                            id="shipDispatchDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Expected Delivery *</label>
+                        <input type="date" name="expected_delivery"
+                            id="shipExpectedDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Dispatch From Godown *</label>
+                        <select name="shipped_from_godown" required>
+                            <option value="">-- Select Godown --</option>
+                            <option value="1">Godown 1 – Bhiwandi</option>
+                            <option value="2">Godown 2 – Mumbai</option>
+                            <option value="3">Godown 3 – Surat</option>
+                            <option value="4">Godown 4 – Ahmedabad</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea name="notes" rows="2"
+                        placeholder="Any shipment notes..."></textarea>
+                </div>
+
+                <!-- Order Items Preview -->
+                <div id="orderItemsPreview" class="hidden">
+                    <h4 class="section-title">Order Items</h4>
+                    <div class="table-wrapper">
+                        <table class="data-table" id="orderItemsTable">
+                            <thead>
+                                <tr>
+                                    <th>Product Code</th>
+                                    <th>Product Name</th>
+                                    <th>Bundles</th>
+                                    <th>Total Sarees</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderItemsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary"
+                        onclick="closeModal('createShipmentModal')">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        🚚 Create Shipment & Send Email
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update Shipment Modal -->
+    <div class="modal" id="updateShipmentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Update Shipment Status</h3>
+                <span class="modal-close"
+                    onclick="closeModal('updateShipmentModal')">✕</span>
+            </div>
+            <form id="updateShipmentForm">
+                <input type="hidden" id="updateShipmentId">
+                <div class="form-group">
+                    <label>Shipment Status</label>
+                    <select name="shipment_status" id="updateStatus">
+                        <option value="preparing">Preparing</option>
+                        <option value="dispatched">Dispatched</option>
+                        <option value="in_transit">In Transit</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="returned">Returned</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Actual Delivery Date</label>
+                    <input type="date" name="actual_delivery"
+                        id="updateActualDelivery">
+                </div>
+                <div class="form-group">
+                    <label>Tracking Number</label>
+                    <input type="text" name="tracking_number"
+                        id="updateTracking"
+                        placeholder="Update tracking number">
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea name="notes" id="updateNotes"
+                        rows="2"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary"
+                        onclick="closeModal('updateShipmentModal')">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        Update Shipment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/shipments.js"></script>
+</body>
+</html>

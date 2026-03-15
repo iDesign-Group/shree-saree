@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products – Shree Sarees Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-logo">
+           <img src="http://localhost:5000/assets/shree-saree-logo-3d_1.jpg"
+             alt="Shree Saree Logo"
+             class="logo-image">
+           <span>Admin Panel</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+            <a href="products.html" class="nav-item active">📦 Products</a>
+            <a href="stock.html" class="nav-item">🏭 Stock Inward</a>
+            <a href="orders.html" class="nav-item">🛒 Orders</a>
+            <a href="shipments.html" class="nav-item">🚚 Shipments</a>
+            <a href="users.html" class="nav-item">👥 Users</a>
+        </nav>
+        <div class="sidebar-footer">
+            <span id="adminName"></span>
+            <button onclick="logout()" class="btn-logout">Logout</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h2>Products Management</h2>
+            <button class="btn-primary" onclick="openModal('addProductModal')">
+                + Add Product
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="card">
+            <input type="text" id="productSearch"
+                placeholder="Search by product code or name..."
+                class="search-input" oninput="searchProducts()">
+        </div>
+
+        <!-- Products Table -->
+        <div class="card">
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price/Saree</th>
+                            <th>Bundle Size</th>
+                            <th>Bundle Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTable">
+                        <tr><td colspan="9"
+                            class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal" id="addProductModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3>Add New Product</h3>
+                <span class="modal-close"
+                    onclick="closeModal('addProductModal')">✕</span>
+            </div>
+            <form id="addProductForm" enctype="multipart/form-data">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Product Code *</label>
+                        <input type="text" name="product_code"
+                            placeholder="e.g. 01BP" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Product Name *</label>
+                        <input type="text" name="name"
+                            placeholder="e.g. Cotton Booti Print Saree" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Price Per Saree (₹) *</label>
+                        <input type="number" name="price_per_saree"
+                            placeholder="e.g. 450" required
+                            oninput="calcBundlePrice()">
+                    </div>
+                    <div class="form-group">
+                        <label>Sarees Per Bundle *</label>
+                        <input type="number" name="sarees_per_bundle"
+                            placeholder="e.g. 6" required
+                            oninput="calcBundlePrice()">
+                    </div>
+                    <div class="form-group">
+                        <label>Bundle Price (₹)</label>
+                        <input type="text" id="bundlePriceDisplay"
+                            readonly placeholder="Auto calculated"
+                            class="readonly-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Fabric</label>
+                        <select name="fabric">
+                            <option value="Cotton">Cotton</option>
+                            <option value="Silk">Silk</option>
+                            <option value="Georgette">Georgette</option>
+                            <option value="Chiffon">Chiffon</option>
+                            <option value="Linen">Linen</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Occasion</label>
+                        <select name="occasion">
+                            <option value="Daily Wear">Daily Wear</option>
+                            <option value="Festive">Festive</option>
+                            <option value="Office Wear">Office Wear</option>
+                            <option value="Party Wear">Party Wear</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Product Image</label>
+                        <input type="file" name="image"
+                            accept="image/jpeg,image/png,image/webp">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="3"
+                        placeholder="Product description..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Meta Title</label>
+                    <input type="text" name="meta_title"
+                        placeholder="SEO meta title">
+                </div>
+                <div class="form-group">
+                    <label>Meta Description</label>
+                    <textarea name="meta_description" rows="2"
+                        placeholder="SEO meta description..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary"
+                        onclick="closeModal('addProductModal')">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        Save Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/products.js"></script>
+</body>
+</html>

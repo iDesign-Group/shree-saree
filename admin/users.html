@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users – Shree Sarees Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-logo">
+         <img src="http://localhost:5000/assets/shree-saree-logo-3d_1.jpg"
+             alt="Shree Saree Logo"
+             class="logo-image">
+         <span>Admin Panel</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">📊 Dashboard</a>
+            <a href="products.html" class="nav-item">📦 Products</a>
+            <a href="stock.html" class="nav-item">🏭 Stock Inward</a>
+            <a href="orders.html" class="nav-item">🛒 Orders</a>
+            <a href="shipments.html" class="nav-item">🚚 Shipments</a>
+            <a href="users.html" class="nav-item active">👥 Users</a>
+        </nav>
+        <div class="sidebar-footer">
+            <span id="adminName"></span>
+            <button onclick="logout()" class="btn-logout">Logout</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <h2>Users Management</h2>
+            <button class="btn-primary"
+                onclick="openModal('addUserModal')">
+                + Add User
+            </button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active"
+                onclick="switchTab('brokers')">Brokers</button>
+            <button class="tab"
+                onclick="switchTab('shops')">Shop Owners</button>
+            <button class="tab"
+                onclick="switchTab('all')">All Users</button>
+        </div>
+
+        <div class="card">
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead id="usersTableHead"></thead>
+                    <tbody id="usersTable">
+                        <tr><td colspan="7"
+                            class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3>Add New User</h3>
+                <span class="modal-close"
+                    onclick="closeModal('addUserModal')">✕</span>
+            </div>
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label>Role *</label>
+                    <select name="role" id="userRole"
+                        onchange="toggleRoleFields()" required>
+                        <option value="broker">Broker</option>
+                        <option value="shop_owner">Shop Owner</option>
+                    </select>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" name="name" required
+                            placeholder="Full name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" name="email" required
+                            placeholder="Email address">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone *</label>
+                        <input type="text" name="phone" required
+                            placeholder="Mobile number">
+                    </div>
+                    <div class="form-group">
+                        <label>Password *</label>
+                        <input type="password" name="password" required
+                            placeholder="Set password">
+                    </div>
+                </div>
+
+                <!-- Broker Fields -->
+                <div id="brokerFields">
+                    <h4 class="section-title">Broker Details</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Broker Code</label>
+                            <input type="text" name="broker_code"
+                                placeholder="e.g. BRK001">
+                        </div>
+                        <div class="form-group">
+                            <label>Commission %</label>
+                            <input type="number" name="commission_percent"
+                                placeholder="e.g. 2.5" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" name="broker_city"
+                                placeholder="City">
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" name="broker_state"
+                                placeholder="State">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shop Owner Fields -->
+                <div id="shopFields" class="hidden">
+                    <h4 class="section-title">Shop Details</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Shop Name *</label>
+                            <input type="text" name="shop_name"
+                                placeholder="Shop name">
+                        </div>
+                        <div class="form-group">
+                            <label>GST Number</label>
+                            <input type="text" name="gst_number"
+                                placeholder="GST number">
+                        </div>
+                        <div class="form-group">
+                            <label>Assign Broker</label>
+                            <select name="broker_id" id="brokerSelect">
+                                <option value="">-- Select Broker --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Credit Days</label>
+                            <input type="number" name="credit_days"
+                                value="60">
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" name="shop_city"
+                                placeholder="City">
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" name="shop_state"
+                                placeholder="State">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Shop Address</label>
+                        <textarea name="shop_address" rows="2"
+                            placeholder="Full address"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary"
+                        onclick="closeModal('addUserModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">
+                        Create User
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/users.js"></script>
+</body>
+</html>

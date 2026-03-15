@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard – Shree Sarees Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+        <img src="http://localhost:5000/assets/shree-saree-logo-3d_1.jpg"
+             alt="Shree Saree Logo"
+             class="logo-image">
+        <span>Admin Panel</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item active">
+                📊 Dashboard</a>
+            <a href="products.html" class="nav-item">
+                📦 Products</a>
+            <a href="stock.html" class="nav-item">
+                🏭 Stock Inward</a>
+            <a href="orders.html" class="nav-item">
+                🛒 Orders</a>
+            <a href="shipments.html" class="nav-item">
+                🚚 Shipments</a>
+            <a href="users.html" class="nav-item">
+                👥 Users</a>
+        </nav>
+        <div class="sidebar-footer">
+            <span id="adminName"></span>
+            <button onclick="logout()" class="btn-logout">Logout</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="topbar">
+            <h2>Dashboard</h2>
+            <span id="currentDate"></span>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📦</div>
+                <div class="stat-info">
+                    <h3 id="totalProducts">0</h3>
+                    <p>Total Products</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🛒</div>
+                <div class="stat-info">
+                    <h3 id="totalOrders">0</h3>
+                    <p>Total Orders</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-info">
+                    <h3 id="pendingOrders">0</h3>
+                    <p>Pending Orders</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🚚</div>
+                <div class="stat-info">
+                    <h3 id="shippedOrders">0</h3>
+                    <p>Shipped Orders</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <h3 id="totalBrokers">0</h3>
+                    <p>Total Brokers</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏪</div>
+                <div class="stat-info">
+                    <h3 id="totalShops">0</h3>
+                    <p>Total Shops</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Recent Orders</h3>
+                <a href="orders.html" class="btn-sm">View All</a>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Order No</th>
+                            <th>Shop</th>
+                            <th>Bundles</th>
+                            <th>Amount</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentOrdersTable">
+                        <tr><td colspan="6"
+                            class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
