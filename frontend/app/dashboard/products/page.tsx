@@ -1,65 +1,86 @@
+import { Suspense } from 'react';
 import Image from 'next/image';
 import { apiFetch } from '@/lib/api';
+import ProductsGrid from '@/components/ProductsGrid';
 
-type Product = {
-  id: number;
-  product_code: string;
-  name: string;
-  price_per_saree: number;
-  sarees_per_bundle?: number;
-  bundle_price?: number;
-  primary_image?: string | null;
+type SearchParams = {
+  search?: string;
+  category_id?: string;
+  page?: string;
 };
 
-type ProductsResponse = { success: boolean; data: Product[] };
-
-export default async function ProductsPage() {
-  const res = await apiFetch<ProductsResponse>('/products?limit=100');
-  const products = res.success ? res.data : [];
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const search = searchParams.search || '';
+  const category_id = searchParams.category_id || '';
+  const page = parseInt(searchParams.page || '1');
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-slate-900">Products</h2>
-        {/* later: filters/search */}
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900">Products</h2>
+          <p className="text-sm text-slate-500">Manage your saree catalogue</p>
+        </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {products.map((p) => (
-          <article
-            key={p.id}
-            className="flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm"
+      {/* Filters */}
+      <form method="GET" className="flex flex-wrap gap-3">
+        <input
+          type="text"
+          name="search"
+          defaultValue={search}
+          placeholder="Search by name or code..."
+          className="w-full max-w-xs rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+        />
+        <select
+          name="category_id"
+          defaultValue={category_id}
+          className="rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-slate-900 focus:outline-none focus:ring-1 focus:ring-slate-900"
+        >
+          <option value="">All Categories</option>
+        </select>
+        <button
+          type="submit"
+          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 transition-colors"
+        >
+          Search
+        </button>
+        {(search || category_id) && (
+          <a
+            href="/dashboard/products"
+            className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
           >
-            <div className="relative h-40 w-full bg-slate-100">
-              {p.primary_image ? (
-                <Image
-                  src={`http://localhost:5000/${p.primary_image}`}
-                  alt={p.name}
-                  fill
-                  className="object-cover"
-                />
-              ) : null}
-            </div>
-            <div className="flex flex-1 flex-col gap-1 p-3 text-sm">
-              <div className="text-xs font-medium text-slate-500">
-                {p.product_code}
-              </div>
-              <div className="line-clamp-2 font-semibold text-slate-900">
-                {p.name}
-              </div>
-              <div className="mt-auto flex items-baseline justify-between pt-2 text-xs text-slate-600">
-                <span>₹{p.price_per_saree.toFixed(2)} / saree</span>
-                {p.sarees_per_bundle && p.bundle_price ? (
-                  <span>
-                    {p.sarees_per_bundle} pcs • ₹
-                    {p.bundle_price.toFixed(2)}
-                  </span>
-                ) : null}
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
+            Clear
+          </a>
+        )}
+      </form>
+
+      {/* Products Grid */}
+      <Suspense fallback={<ProductsSkeleton />}>
+        <ProductsGrid search={search} category_id={category_id} page={page} />
+      </Suspense>
+    </div>
+  );
+}
+
+function ProductsSkeleton() {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="animate-pulse rounded-xl border border-slate-200 bg-white">
+          <div className="h-40 w-full rounded-t-xl bg-slate-200" />
+          <div className="space-y-2 p-3">
+            <div className="h-3 w-1/3 rounded bg-slate-200" />
+            <div className="h-4 w-3/4 rounded bg-slate-200" />
+            <div className="h-3 w-1/2 rounded bg-slate-200" />
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
