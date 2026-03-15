@@ -5,9 +5,9 @@ type Product = {
   id: number;
   product_code: string;
   name: string;
-  price_per_saree: number;
-  sarees_per_bundle?: number;
-  bundle_price?: number;
+  price_per_saree: number | string;
+  sarees_per_bundle?: number | string;
+  bundle_price?: number | string;
   primary_image?: string | null;
   category_name?: string;
   brand_name?: string;
@@ -64,53 +64,61 @@ export default async function ProductsGrid({ search = '', category_id = '', page
       <p className="text-xs text-slate-500">{products.length} product{products.length !== 1 ? 's' : ''} found</p>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {products.map((p) => (
-          <article
-            key={p.id}
-            className="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow"
-          >
-            {/* Image */}
-            <div className="relative h-44 w-full bg-slate-100">
-              {p.primary_image ? (
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_API_BASE?.replace('/api', '') ?? 'http://localhost:5000'}/${p.primary_image}`}
-                  alt={p.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-slate-300 text-xs">No Image</div>
-              )}
-            </div>
+        {products.map((p) => {
+          const pricePerSaree = parseFloat(String(p.price_per_saree));
+          const bundlePrice = p.bundle_price ? parseFloat(String(p.bundle_price)) : null;
+          const sareesPerBundle = p.sarees_per_bundle ? parseInt(String(p.sarees_per_bundle)) : null;
 
-            {/* Info */}
-            <div className="flex flex-1 flex-col gap-1 p-3 text-sm">
-              <div className="flex items-center justify-between gap-1">
-                <span className="text-xs font-medium text-slate-400">{p.product_code}</span>
-                {p.category_name && (
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
-                    {p.category_name}
-                  </span>
+          return (
+            <article
+              key={p.id}
+              className="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow"
+            >
+              {/* Image */}
+              <div className="relative h-44 w-full bg-slate-100">
+                {p.primary_image ? (
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_API_BASE?.replace('/api', '') ?? 'http://localhost:5000'}/${p.primary_image}`}
+                    alt={p.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-slate-300 text-xs">No Image</div>
                 )}
               </div>
 
-              <div className="line-clamp-2 font-semibold text-slate-900">{p.name}</div>
+              {/* Info */}
+              <div className="flex flex-1 flex-col gap-1 p-3 text-sm">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-xs font-medium text-slate-400">{p.product_code}</span>
+                  {p.category_name && (
+                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
+                      {p.category_name}
+                    </span>
+                  )}
+                </div>
 
-              {p.brand_name && (
-                <div className="text-xs text-slate-400">{p.brand_name}</div>
-              )}
+                <div className="line-clamp-2 font-semibold text-slate-900">{p.name}</div>
 
-              <div className="mt-auto flex items-baseline justify-between pt-2 text-xs">
-                <span className="font-semibold text-slate-800">₹{p.price_per_saree.toFixed(2)} / saree</span>
-                {p.sarees_per_bundle && p.bundle_price ? (
-                  <span className="text-slate-500">
-                    {p.sarees_per_bundle} pcs • ₹{p.bundle_price.toFixed(2)}
+                {p.brand_name && (
+                  <div className="text-xs text-slate-400">{p.brand_name}</div>
+                )}
+
+                <div className="mt-auto flex items-baseline justify-between pt-2 text-xs">
+                  <span className="font-semibold text-slate-800">
+                    ₹{isNaN(pricePerSaree) ? '—' : pricePerSaree.toFixed(2)} / saree
                   </span>
-                ) : null}
+                  {sareesPerBundle && bundlePrice ? (
+                    <span className="text-slate-500">
+                      {sareesPerBundle} pcs • ₹{bundlePrice.toFixed(2)}
+                    </span>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          );
+        })}
       </div>
 
       {/* Pagination */}
