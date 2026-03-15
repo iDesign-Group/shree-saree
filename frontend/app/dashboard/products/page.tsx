@@ -1,22 +1,19 @@
 import { Suspense } from 'react';
-import Image from 'next/image';
-import { apiFetch } from '@/lib/api';
 import ProductsGrid from '@/components/ProductsGrid';
 
-type SearchParams = {
+type SearchParams = Promise<{
   search?: string;
   category_id?: string;
   page?: string;
-};
+}>;
 
 export default async function ProductsPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const search = searchParams.search || '';
-  const category_id = searchParams.category_id || '';
-  const page = parseInt(searchParams.page || '1');
+  const { search = '', category_id = '', page: pageStr = '1' } = await searchParams;
+  const page = parseInt(pageStr);
 
   return (
     <div className="space-y-5">
