@@ -13,21 +13,21 @@ const loadProducts = async (search = '') => {
     tbody.innerHTML = data.data.length ? data.data.map(p => `
         <tr>
             <td>${p.primary_image
-                ? `<img src="${BASE_IMG}${p.primary_image}"
-                        class="product-img">`
-                : '—'}</td>
+                ? `<img src="${BASE_IMG}${p.primary_image.replace(/\\\\/g, '/').replace(/^(api\/)?/, '')}"
+                        class="product-img" onerror="this.style.display='none'">`
+                : '\u2014'}</td>
             <td><strong>${p.product_code}</strong></td>
             <td>${p.name}</td>
-            <td>${p.category_name || '—'}</td>
-            <td>₹${p.price_per_saree}</td>
-            <td>${p.sarees_per_bundle || '—'} pcs</td>
-            <td>₹${p.bundle_price || '—'}</td>
+            <td>${p.category_name || '\u2014'}</td>
+            <td>\u20B9${parseFloat(p.price_per_saree).toFixed(2)}</td>
+            <td>${p.sarees_per_bundle || '\u2014'} pcs</td>
+            <td>\u20B9${p.bundle_price ? parseFloat(p.bundle_price).toFixed(2) : '\u2014'}</td>
             <td><span class="badge ${p.is_active
                 ? 'badge-active' : 'badge-inactive'}">
                 ${p.is_active ? 'Active' : 'Inactive'}</span></td>
             <td class="action-btns">
-                <button class="btn-edit"
-                    onclick="viewStock(${p.id})">Stock</button>
+                <button class="btn-edit" onclick="openEditModal(${p.id})">\u270F\uFE0F Edit</button>
+                <button class="btn-edit" onclick="viewStock(${p.id})">Stock</button>
             </td>
         </tr>`).join('')
         : '<tr><td colspan="9" class="text-center">No products found</td></tr>';
@@ -44,8 +44,95 @@ const calcBundlePrice = () => {
     const bundle = parseInt(
         document.querySelector('[name="sarees_per_bundle"]').value) || 0;
     document.getElementById('bundlePriceDisplay').value =
-        price && bundle ? `₹${(price * bundle).toFixed(2)}` : '';
+        price && bundle ? `\u20B9${(price * bundle).toFixed(2)}` : '';
 };
+
+const calcEditBundlePrice = () => {
+    const price = parseFloat(document.getElementById('editPricePerSaree').value) || 0;
+    const bundle = parseInt(document.getElementById('editSareesPerBundle').value) || 0;
+    document.getElementById('editBundlePriceDisplay').value =
+        price && bundle ? `\u20B9${(price * bundle).toFixed(2)}` : '';
+};
+
+// Open Edit Modal & pre-fill with product data
+const openEditModal = async (productId) => {
+    const data = await apiCall(`/products/${productId}`);
+    if (!data.success) {
+        alert('\u274C Could not load product details.');
+        return;
+    }
+    const p = data.data;
+
+    document.getElementById('editProductId').value       = p.id;
+    document.getElementById('editProductCode').value     = p.product_code || '';
+    document.getElementById('editProductName').value     = p.name || '';
+    document.getElementById('editPricePerSaree').value   = parseFloat(p.price_per_saree) || '';
+    document.getElementById('editSareesPerBundle').value = p.sarees_per_bundle || '';
+    document.getElementById('editDescription').value     = p.description || '';
+    document.getElementById('editMetaTitle').value       = p.meta_title || '';
+    document.getElementById('editMetaDescription').value = p.meta_description || '';
+
+    // Set dropdowns
+    setSelectValue('editFabric', p.fabric);
+    setSelectValue('editOccasion', p.occasion);
+
+    // Show bundle price
+    const price  = parseFloat(p.price_per_saree) || 0;
+    const bundle = parseInt(p.sarees_per_bundle) || 0;
+    document.getElementById('editBundlePriceDisplay').value =
+        price && bundle ? `\u20B9${(price * bundle).toFixed(2)}` : '';
+
+    openModal('editProductModal');
+};
+
+const setSelectValue = (id, value) => {
+    const sel = document.getElementById(id);
+    if (!sel || !value) return;
+    for (const opt of sel.options) {
+        if (opt.value.toLowerCase() === value.toLowerCase()) {
+            sel.value = opt.value;
+            break;
+        }
+    }
+};
+
+// Edit product form submission
+document.getElementById('editProductForm')
+    .addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('editProductId').value;
+
+    const payload = {
+        product_code:     document.getElementById('editProductCode').value.trim(),
+        name:             document.getElementById('editProductName').value.trim(),
+        price_per_saree:  parseFloat(document.getElementById('editPricePerSaree').value),
+        sarees_per_bundle:parseInt(document.getElementById('editSareesPerBundle').value),
+        fabric:           document.getElementById('editFabric').value,
+        occasion:         document.getElementById('editOccasion').value,
+        description:      document.getElementById('editDescription').value.trim(),
+        meta_title:       document.getElementById('editMetaTitle').value.trim(),
+        meta_description: document.getElementById('editMetaDescription').value.trim(),
+    };
+
+    const token = localStorage.getItem('adminToken');
+    const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    if (data.success) {
+        closeModal('editProductModal');
+        loadProducts();
+        alert('\u2705 Product updated successfully!');
+    } else {
+        alert('\u274C Error: ' + (data.message || 'Update failed.'));
+    }
+});
 
 // Add product form submission
 document.getElementById('addProductForm')
@@ -59,9 +146,9 @@ document.getElementById('addProductForm')
         form.reset();
         document.getElementById('bundlePriceDisplay').value = '';
         loadProducts();
-        alert('✅ Product added successfully!');
+        alert('\u2705 Product added successfully!');
     } else {
-        alert('❌ Error: ' + data.message);
+        alert('\u274C Error: ' + data.message);
     }
 });
 

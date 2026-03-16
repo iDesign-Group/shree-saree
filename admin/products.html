@@ -160,6 +160,93 @@
         </div>
     </div>
 
+    <!-- Edit Product Modal -->
+    <div class="modal" id="editProductModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3>Edit Product</h3>
+                <span class="modal-close"
+                    onclick="closeModal('editProductModal')">✕</span>
+            </div>
+            <form id="editProductForm">
+                <input type="hidden" id="editProductId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Product Code *</label>
+                        <input type="text" id="editProductCode"
+                            placeholder="e.g. 01BP" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Product Name *</label>
+                        <input type="text" id="editProductName"
+                            placeholder="e.g. Cotton Booti Print Saree" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Price Per Saree (₹) *</label>
+                        <input type="number" id="editPricePerSaree"
+                            placeholder="e.g. 450" required
+                            oninput="calcEditBundlePrice()">
+                    </div>
+                    <div class="form-group">
+                        <label>Sarees Per Bundle *</label>
+                        <input type="number" id="editSareesPerBundle"
+                            placeholder="e.g. 6" required
+                            oninput="calcEditBundlePrice()">
+                    </div>
+                    <div class="form-group">
+                        <label>Bundle Price (₹)</label>
+                        <input type="text" id="editBundlePriceDisplay"
+                            readonly placeholder="Auto calculated"
+                            class="readonly-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Fabric</label>
+                        <select id="editFabric">
+                            <option value="Cotton">Cotton</option>
+                            <option value="Silk">Silk</option>
+                            <option value="Georgette">Georgette</option>
+                            <option value="Chiffon">Chiffon</option>
+                            <option value="Linen">Linen</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Occasion</label>
+                        <select id="editOccasion">
+                            <option value="Daily Wear">Daily Wear</option>
+                            <option value="Festive">Festive</option>
+                            <option value="Office Wear">Office Wear</option>
+                            <option value="Party Wear">Party Wear</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="editDescription" rows="3"
+                        placeholder="Product description..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Meta Title</label>
+                    <input type="text" id="editMetaTitle"
+                        placeholder="SEO meta title">
+                </div>
+                <div class="form-group">
+                    <label>Meta Description</label>
+                    <textarea id="editMetaDescription" rows="2"
+                        placeholder="SEO meta description..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary"
+                        onclick="closeModal('editProductModal')">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        Update Product
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="js/auth.js"></script>
     <script src="js/products.js"></script>
 </body>
