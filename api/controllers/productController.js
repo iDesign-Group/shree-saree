@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const path = require('path');
+const fs = require('fs');
 
 // GET /api/products
 const getAllProducts = async (req, res) => {
@@ -88,7 +89,6 @@ const createProduct = async (req, res) => {
 
         const product_id = result.insertId;
 
-        // Calculate and insert bundle price
         const bundle_price = parseFloat(price_per_saree)
                            * parseInt(sarees_per_bundle);
         await db.query(`
@@ -97,7 +97,6 @@ const createProduct = async (req, res) => {
             VALUES (?, ?, ?)`,
             [product_id, sarees_per_bundle, bundle_price]);
 
-        // Handle image upload
         if (req.file) {
             await db.query(`
                 INSERT INTO product_images
@@ -106,8 +105,7 @@ const createProduct = async (req, res) => {
                 [product_id, req.file.path]);
         }
 
-        res.json({ success: true, message: 'Product created.',
-            product_id });
+        res.json({ success: true, message: 'Product created.', product_id });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -138,5 +136,34 @@ const updateProduct = async (req, res) => {
     }
 };
 
+// DELETE /api/products/:id (Admin only)
+const deleteProduct = async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        // Check product exists
+        const [rows] = await db.query(
+            'SELECT id FROM products WHERE id = ?', [id]);
+        if (rows.length === 0)
+            return res.status(404).json({
+                success: false, message: 'Product not found.' });
+
+        // Delete associated image files from disk
+        const [images] = await db.query(
+            'SELECT image_path FROM product_images WHERE product_id = ?', [id]);
+        for (const img of images) {
+            const filePath = path.join(__dirname, '..', img.image_path);
+            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        }
+
+        // Delete product (cascades to product_images, product_bundles)
+        await db.query('DELETE FROM products WHERE id = ?', [id]);
+
+        res.json({ success: true, message: 'Product deleted successfully.' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
 module.exports = { getAllProducts, getProductById,
-                   createProduct, updateProduct };
+                   createProduct, updateProduct, deleteProduct };

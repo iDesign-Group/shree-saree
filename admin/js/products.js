@@ -22,12 +22,12 @@ const loadProducts = async (search = '') => {
             <td>\u20B9${parseFloat(p.price_per_saree).toFixed(2)}</td>
             <td>${p.sarees_per_bundle || '\u2014'} pcs</td>
             <td>\u20B9${p.bundle_price ? parseFloat(p.bundle_price).toFixed(2) : '\u2014'}</td>
-            <td><span class="badge ${p.is_active
-                ? 'badge-active' : 'badge-inactive'}">
+            <td><span class="badge ${p.is_active ? 'badge-active' : 'badge-inactive'}">
                 ${p.is_active ? 'Active' : 'Inactive'}</span></td>
             <td class="action-btns">
                 <button class="btn-edit" onclick="openEditModal(${p.id})">\u270F\uFE0F Edit</button>
                 <button class="btn-edit" onclick="viewStock(${p.id})">Stock</button>
+                <button class="btn-delete" onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}')">\uD83D\uDDD1\uFE0F Delete</button>
             </td>
         </tr>`).join('')
         : '<tr><td colspan="9" class="text-center">No products found</td></tr>';
@@ -72,11 +72,9 @@ const openEditModal = async (productId) => {
     document.getElementById('editMetaTitle').value       = p.meta_title || '';
     document.getElementById('editMetaDescription').value = p.meta_description || '';
 
-    // Set dropdowns
     setSelectValue('editFabric', p.fabric);
     setSelectValue('editOccasion', p.occasion);
 
-    // Show bundle price
     const price  = parseFloat(p.price_per_saree) || 0;
     const bundle = parseInt(p.sarees_per_bundle) || 0;
     document.getElementById('editBundlePriceDisplay').value =
@@ -96,6 +94,30 @@ const setSelectValue = (id, value) => {
     }
 };
 
+// Delete product with confirmation
+const deleteProduct = async (productId, productName) => {
+    const confirmed = confirm(
+        `\u26A0\uFE0F Are you sure you want to delete "${productName}"?\n\nThis will permanently remove the product and all its images. This action cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    const token = localStorage.getItem('adminToken');
+    const res = await fetch(`http://localhost:5000/api/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+    });
+    const data = await res.json();
+
+    if (data.success) {
+        loadProducts();
+        alert('\u2705 Product deleted successfully!');
+    } else {
+        alert('\u274C Error: ' + (data.message || 'Delete failed.'));
+    }
+};
+
 // Edit product form submission
 document.getElementById('editProductForm')
     .addEventListener('submit', async (e) => {
@@ -103,15 +125,15 @@ document.getElementById('editProductForm')
     const id = document.getElementById('editProductId').value;
 
     const payload = {
-        product_code:     document.getElementById('editProductCode').value.trim(),
-        name:             document.getElementById('editProductName').value.trim(),
-        price_per_saree:  parseFloat(document.getElementById('editPricePerSaree').value),
-        sarees_per_bundle:parseInt(document.getElementById('editSareesPerBundle').value),
-        fabric:           document.getElementById('editFabric').value,
-        occasion:         document.getElementById('editOccasion').value,
-        description:      document.getElementById('editDescription').value.trim(),
-        meta_title:       document.getElementById('editMetaTitle').value.trim(),
-        meta_description: document.getElementById('editMetaDescription').value.trim(),
+        product_code:      document.getElementById('editProductCode').value.trim(),
+        name:              document.getElementById('editProductName').value.trim(),
+        price_per_saree:   parseFloat(document.getElementById('editPricePerSaree').value),
+        sarees_per_bundle: parseInt(document.getElementById('editSareesPerBundle').value),
+        fabric:            document.getElementById('editFabric').value,
+        occasion:          document.getElementById('editOccasion').value,
+        description:       document.getElementById('editDescription').value.trim(),
+        meta_title:        document.getElementById('editMetaTitle').value.trim(),
+        meta_description:  document.getElementById('editMetaDescription').value.trim(),
     };
 
     const token = localStorage.getItem('adminToken');
@@ -158,24 +180,17 @@ const viewStock = async (productId) => {
         alert('Could not load stock.');
         return;
     }
-
     const rows = data.data || [];
-
     if (!rows.length) {
         alert('No stock found for this product.');
         return;
     }
-
     const msg = rows.map(s => {
-        const rackLabel = `R${String(s.rack_id).padStart(3, '0')}`;
-        const shelfLabel =
-            ['A','B','C','D','E','F'][s.shelf_id - 1] || s.shelf_id;
-
+        const rackLabel  = `R${String(s.rack_id).padStart(3, '0')}`;
+        const shelfLabel = ['A','B','C','D','E','F'][s.shelf_id - 1] || s.shelf_id;
         return `${s.godown_name || 'Godown ' + s.godown_id} > `
              + `${rackLabel} > Shelf ${shelfLabel}: `
-             + `${s.bundles_available} bundles `
-             + `(${s.sarees_available} sarees)`;
+             + `${s.bundles_available} bundles (${s.sarees_available} sarees)`;
     }).join('\n');
-
     alert(`Stock Locations:\n${msg}`);
 };

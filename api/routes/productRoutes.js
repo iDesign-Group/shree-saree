@@ -5,7 +5,8 @@ const {
     getAllProducts,
     getProductById,
     createProduct,
-    updateProduct
+    updateProduct,
+    deleteProduct
 } = require('../controllers/productController');
 const { verifyToken } = require('../middleware/auth');
 const { allowRoles } = require('../middleware/roleCheck');
@@ -32,11 +33,10 @@ const upload = multer({
     limits: { fileSize: 5 * 1024 * 1024 }
 });
 
-router.get('/', getAllProducts);
-router.get('/:id', getProductById);
-router.post('/', verifyToken, allowRoles('admin'),
-    upload.single('image'), createProduct);
-router.put('/:id', verifyToken, allowRoles('admin'),
-    upload.single('image'), updateProduct);
+router.get('/',     getAllProducts);
+router.get('/:id',  getProductById);
+router.post('/',    verifyToken, allowRoles('admin'), upload.single('image'), createProduct);
+router.put('/:id',  verifyToken, allowRoles('admin'), upload.single('image'), updateProduct);
+router.delete('/:id', verifyToken, allowRoles('admin'), deleteProduct);
 
 module.exports = router;
