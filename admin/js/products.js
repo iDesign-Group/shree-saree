@@ -11,27 +11,28 @@ const loadProducts = async (search = '') => {
     if (!data.success) return;
 
     tbody.innerHTML = data.data.length ? data.data.map(p => {
-        const imgSrc = p.primary_image
+        const imgSrc   = p.primary_image
             ? BASE_IMG + p.primary_image.replace(/\\/g, '/').replace(/^(api\/)?/, '')
             : null;
+        const safeName = (p.name || '').replace(/'/g, "\\'");
 
         return `
         <tr>
             <td>${imgSrc
                 ? `<img src="${imgSrc}" class="product-img" onerror="this.style.display='none'">`
-                : '\u2014'}</td>
-            <td><strong>${p.product_code}</strong></td>
-            <td>${p.name}</td>
-            <td>${p.category_name || '\u2014'}</td>
-            <td>\u20B9${parseFloat(p.price_per_saree).toFixed(2)}</td>
-            <td>${p.sarees_per_bundle || '\u2014'} pcs</td>
-            <td>\u20B9${p.bundle_price ? parseFloat(p.bundle_price).toFixed(2) : '\u2014'}</td>
+                : '&mdash;'}</td>
+            <td><strong>${p.product_code || '&mdash;'}</strong></td>
+            <td>${p.name || '&mdash;'}</td>
+            <td>${p.category_name || '&mdash;'}</td>
+            <td>&#8377;${parseFloat(p.price_per_saree || 0).toFixed(2)}</td>
+            <td>${p.sarees_per_bundle || '&mdash;'} pcs</td>
+            <td>&#8377;${p.bundle_price ? parseFloat(p.bundle_price).toFixed(2) : '&mdash;'}</td>
             <td><span class="badge ${p.is_active ? 'badge-active' : 'badge-inactive'}">
                 ${p.is_active ? 'Active' : 'Inactive'}</span></td>
             <td class="action-btns">
-                <button class="btn-edit" onclick="openEditModal(${p.id})">\u270F\uFE0F Edit</button>
+                <button class="btn-edit" onclick="openEditModal(${p.id})">&#9999;&#65039; Edit</button>
                 <button class="btn-edit" onclick="viewStock(${p.id})">Stock</button>
-                <button class="btn-delete" onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}'")\uD83D\uDDD1\uFE0F Delete</button>
+                <button class="btn-delete" onclick="deleteProduct(${p.id}, '${safeName}')">&#128465;&#65039; Delete</button>
             </td>
         </tr>`;
     }).join('')
@@ -47,14 +48,14 @@ const calcBundlePrice = () => {
     const price  = parseFloat(document.querySelector('[name="price_per_saree"]').value) || 0;
     const bundle = parseInt(document.querySelector('[name="sarees_per_bundle"]').value) || 0;
     document.getElementById('bundlePriceDisplay').value =
-        price && bundle ? `\u20B9${(price * bundle).toFixed(2)}` : '';
+        price && bundle ? `&#8377;${(price * bundle).toFixed(2)}` : '';
 };
 
 const calcEditBundlePrice = () => {
     const price  = parseFloat(document.getElementById('editPricePerSaree').value) || 0;
     const bundle = parseInt(document.getElementById('editSareesPerBundle').value) || 0;
     document.getElementById('editBundlePriceDisplay').value =
-        price && bundle ? `\u20B9${(price * bundle).toFixed(2)}` : '';
+        price && bundle ? `&#8377;${(price * bundle).toFixed(2)}` : '';
 };
 
 // Open Edit Modal & pre-fill with product data
@@ -81,7 +82,7 @@ const openEditModal = async (productId) => {
     const price  = parseFloat(p.price_per_saree) || 0;
     const bundle = parseInt(p.sarees_per_bundle) || 0;
     document.getElementById('editBundlePriceDisplay').value =
-        price && bundle ? `\u20B9${(price * bundle).toFixed(2)}` : '';
+        price && bundle ? `&#8377;${(price * bundle).toFixed(2)}` : '';
 
     openModal('editProductModal');
 };
