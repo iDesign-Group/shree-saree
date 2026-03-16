@@ -156,8 +156,10 @@ const deleteProduct = async (req, res) => {
             if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         }
 
-        // Delete in correct order to respect foreign key constraints
-        await db.query('DELETE FROM stock_inward  WHERE product_id = ?', [id]);
+        // Delete in correct order to satisfy all foreign key constraints
+        await db.query('DELETE FROM order_items    WHERE product_id = ?', [id]);
+        await db.query('DELETE FROM stock_ledger   WHERE product_id = ?', [id]);
+        await db.query('DELETE FROM stock_inward   WHERE product_id = ?', [id]);
         await db.query('DELETE FROM product_images WHERE product_id = ?', [id]);
         await db.query('DELETE FROM product_bundles WHERE product_id = ?', [id]);
         await db.query('DELETE FROM products WHERE id = ?', [id]);
