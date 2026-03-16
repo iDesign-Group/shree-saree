@@ -1,6 +1,22 @@
 import Image from 'next/image';
 import { apiFetch } from '@/lib/api';
 
+const API_HOST = process.env.NEXT_PUBLIC_API_BASE?.replace('/api', '') ?? 'http://localhost:5000';
+
+/** Normalise whatever multer stored (e.g. "uploads\\file.jpg", "uploads/file.jpg",
+ *  "api/uploads/file.jpg") into a clean absolute URL. */
+function buildImageUrl(imagePath: string): string {
+  // Replace Windows backslashes
+  const normalized = imagePath.replace(/\\/g, '/');
+  // Strip any leading api/ or duplicate uploads/
+  const clean = normalized.replace(/^(api\/)?/, '');
+  // Remove leading slash if present
+  const trimmed = clean.replace(/^\//, '');
+  // If path already starts with uploads/, use as-is; else prepend uploads/
+  const finalPath = trimmed.startsWith('uploads/') ? trimmed : `uploads/${trimmed}`;
+  return `${API_HOST}/${finalPath}`;
+}
+
 type Product = {
   id: number;
   product_code: string;
@@ -68,6 +84,7 @@ export default async function ProductsGrid({ search = '', category_id = '', page
           const pricePerSaree = parseFloat(String(p.price_per_saree));
           const bundlePrice = p.bundle_price ? parseFloat(String(p.bundle_price)) : null;
           const sareesPerBundle = p.sarees_per_bundle ? parseInt(String(p.sarees_per_bundle)) : null;
+          const imageUrl = p.primary_image ? buildImageUrl(p.primary_image) : null;
 
           return (
             <article
@@ -76,12 +93,13 @@ export default async function ProductsGrid({ search = '', category_id = '', page
             >
               {/* Image */}
               <div className="relative h-44 w-full bg-slate-100">
-                {p.primary_image ? (
+                {imageUrl ? (
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_API_BASE?.replace('/api', '') ?? 'http://localhost:5000'}/${p.primary_image}`}
+                    src={imageUrl}
                     alt={p.name}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    unoptimized
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center text-slate-300 text-xs">No Image</div>
