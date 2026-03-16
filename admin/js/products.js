@@ -10,11 +10,15 @@ const loadProducts = async (search = '') => {
     const data = await apiCall(`/products?search=${search}&limit=100`);
     if (!data.success) return;
 
-    tbody.innerHTML = data.data.length ? data.data.map(p => `
+    tbody.innerHTML = data.data.length ? data.data.map(p => {
+        const imgSrc = p.primary_image
+            ? BASE_IMG + p.primary_image.replace(/\\/g, '/').replace(/^(api\/)?/, '')
+            : null;
+
+        return `
         <tr>
-            <td>${p.primary_image
-                ? `<img src="${BASE_IMG}${p.primary_image.replace(/\\\\/g, '/').replace(/^(api\/)?/, '')}"
-                        class="product-img" onerror="this.style.display='none'">`
+            <td>${imgSrc
+                ? `<img src="${imgSrc}" class="product-img" onerror="this.style.display='none'">`
                 : '\u2014'}</td>
             <td><strong>${p.product_code}</strong></td>
             <td>${p.name}</td>
@@ -27,10 +31,11 @@ const loadProducts = async (search = '') => {
             <td class="action-btns">
                 <button class="btn-edit" onclick="openEditModal(${p.id})">\u270F\uFE0F Edit</button>
                 <button class="btn-edit" onclick="viewStock(${p.id})">Stock</button>
-                <button class="btn-delete" onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}')">\uD83D\uDDD1\uFE0F Delete</button>
+                <button class="btn-delete" onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}'")\uD83D\uDDD1\uFE0F Delete</button>
             </td>
-        </tr>`).join('')
-        : '<tr><td colspan="9" class="text-center">No products found</td></tr>';
+        </tr>`;
+    }).join('')
+    : '<tr><td colspan="9" class="text-center">No products found</td></tr>';
 };
 
 const searchProducts = () => {
@@ -39,16 +44,14 @@ const searchProducts = () => {
 };
 
 const calcBundlePrice = () => {
-    const price = parseFloat(
-        document.querySelector('[name="price_per_saree"]').value) || 0;
-    const bundle = parseInt(
-        document.querySelector('[name="sarees_per_bundle"]').value) || 0;
+    const price  = parseFloat(document.querySelector('[name="price_per_saree"]').value) || 0;
+    const bundle = parseInt(document.querySelector('[name="sarees_per_bundle"]').value) || 0;
     document.getElementById('bundlePriceDisplay').value =
         price && bundle ? `\u20B9${(price * bundle).toFixed(2)}` : '';
 };
 
 const calcEditBundlePrice = () => {
-    const price = parseFloat(document.getElementById('editPricePerSaree').value) || 0;
+    const price  = parseFloat(document.getElementById('editPricePerSaree').value) || 0;
     const bundle = parseInt(document.getElementById('editSareesPerBundle').value) || 0;
     document.getElementById('editBundlePriceDisplay').value =
         price && bundle ? `\u20B9${(price * bundle).toFixed(2)}` : '';
@@ -101,7 +104,7 @@ const deleteProduct = async (productId, productName) => {
     );
     if (!confirmed) return;
 
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('ss_token');
     const res = await fetch(`http://localhost:5000/api/products/${productId}`, {
         method: 'DELETE',
         headers: {
@@ -136,7 +139,7 @@ document.getElementById('editProductForm')
         meta_description:  document.getElementById('editMetaDescription').value.trim(),
     };
 
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('ss_token');
     const res = await fetch(`http://localhost:5000/api/products/${id}`, {
         method: 'PUT',
         headers: {
