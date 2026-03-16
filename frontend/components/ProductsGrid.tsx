@@ -1,18 +1,13 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
 
 const API_HOST = process.env.NEXT_PUBLIC_API_BASE?.replace('/api', '') ?? 'http://localhost:5000';
 
-/** Normalise whatever multer stored (e.g. "uploads\\file.jpg", "uploads/file.jpg",
- *  "api/uploads/file.jpg") into a clean absolute URL. */
 function buildImageUrl(imagePath: string): string {
-  // Replace Windows backslashes
   const normalized = imagePath.replace(/\\/g, '/');
-  // Strip any leading api/ or duplicate uploads/
   const clean = normalized.replace(/^(api\/)?/, '');
-  // Remove leading slash if present
   const trimmed = clean.replace(/^\//, '');
-  // If path already starts with uploads/, use as-is; else prepend uploads/
   const finalPath = trimmed.startsWith('uploads/') ? trimmed : `uploads/${trimmed}`;
   return `${API_HOST}/${finalPath}`;
 }
@@ -133,6 +128,14 @@ export default async function ProductsGrid({ search = '', category_id = '', page
                     </span>
                   ) : null}
                 </div>
+
+                {/* Edit Button */}
+                <Link
+                  href={`/dashboard/products/${p.id}/edit`}
+                  className="mt-2 flex items-center justify-center gap-1 rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  ✏️ Edit
+                </Link>
               </div>
             </article>
           );
