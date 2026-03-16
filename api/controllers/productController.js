@@ -148,7 +148,7 @@ const deleteProduct = async (req, res) => {
             return res.status(404).json({
                 success: false, message: 'Product not found.' });
 
-        // Delete associated image files from disk
+        // Delete image files from disk
         const [images] = await db.query(
             'SELECT image_path FROM product_images WHERE product_id = ?', [id]);
         for (const img of images) {
@@ -156,7 +156,10 @@ const deleteProduct = async (req, res) => {
             if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         }
 
-        // Delete product (cascades to product_images, product_bundles)
+        // Delete in correct order to respect foreign key constraints
+        await db.query('DELETE FROM stock_inward  WHERE product_id = ?', [id]);
+        await db.query('DELETE FROM product_images WHERE product_id = ?', [id]);
+        await db.query('DELETE FROM product_bundles WHERE product_id = ?', [id]);
         await db.query('DELETE FROM products WHERE id = ?', [id]);
 
         res.json({ success: true, message: 'Product deleted successfully.' });
