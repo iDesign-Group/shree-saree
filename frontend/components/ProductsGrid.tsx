@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
 
 const API_HOST = process.env.NEXT_PUBLIC_API_BASE?.replace('/api', '') ?? 'http://localhost:5000';
@@ -128,14 +127,6 @@ export default async function ProductsGrid({ search = '', category_id = '', page
                     </span>
                   ) : null}
                 </div>
-
-                {/* Edit Button */}
-                <Link
-                  href={`/dashboard/products/${p.id}/edit`}
-                  className="mt-2 flex items-center justify-center gap-1 rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
-                >
-                  ✏️ Edit
-                </Link>
               </div>
             </article>
           );
